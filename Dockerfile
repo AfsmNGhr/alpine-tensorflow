@@ -2,6 +2,7 @@ FROM python:3.7.3-alpine3.9
 
 ENV TENSORFLOW_VERSION=1.13.1 \
     NUMPY_VERSION=1.16.1 \
+    JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk \
     BAZEL_VERSION=0.19.2 \
     LOCAL_RESOURCES=2048,.5,1.0 \
     CC_OPT_FLAGS='-march=native' \
@@ -23,13 +24,14 @@ RUN apk add --no-cache --virtual build-deps cmake build-base linux-headers \
     echo 'Download and install bazel' && \
     wget -q "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \
          -O bazel.zip && \
-    unzip -qq bazel.zip && \
+    mkdir "bazel-${BAZEL_VERSION}" && \
+    unzip -qd "bazel-${BAZEL_VERSION}" bazel.zip && \
     rm bazel.zip && \
     cd "bazel-${BAZEL_VERSION}" && \
     sed -i -e 's/-classpath/-J-Xmx8192m -J-Xms128m -classpath/g' \
         scripts/bootstrap/compile.sh && \
     bash compile.sh && \
-    cp -p output/bazel /usr/local/bin/ && \
+    cp -p output/bazel /usr/bin/ && \
     cd / && \
     bazel version && \
     echo 'Download and compile tensorflow' && \

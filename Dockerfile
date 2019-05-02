@@ -38,7 +38,6 @@ RUN apk add --no-cache --virtual build-deps cmake build-base linux-headers \
     tar xzf tensorflow.tar.gz && \
     rm tensorflow.tar.gz && \
     cd "tensorflow-${TENSORFLOW_VERSION}" && \
-    : musl-libc does not have "secure_getenv" function && \
     sed -i -e '/JEMALLOC_HAVE_SECURE_GETENV/d' third_party/jemalloc.BUILD && \
     sed -i -e '/define TF_GENERATE_BACKTRACE/d' tensorflow/core/platform/default/stacktrace.h && \
     sed -i -e '/define TF_GENERATE_STACKTRACE/d' tensorflow/core/platform/stacktrace_handler.cc && \

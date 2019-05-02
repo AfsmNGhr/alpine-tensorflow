@@ -1,0 +1,18 @@
+services:
+  - docker
+
+env:
+  global:
+    - COMMIT="${TRAVIS_COMMIT::8}"
+    - REPO=afsmnghr/alpine-py3-tensorflow
+
+script:
+  - docker build -t "${TRAVIS_BUILD_NUMBER}" $(pwd)
+
+after_success:
+  - export $(cat .env)
+  - docker build -t "$REPO:$VERSION" $(pwd)
+  - docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
+  - docker tag "$REPO:$VERSION" "$REPO:$COMMIT"
+  - docker tag "$REPO:$VERSION" "$REPO:latest"
+  - docker push "$REPO"

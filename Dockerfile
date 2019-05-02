@@ -16,10 +16,10 @@ ENV TENSORFLOW_VERSION=1.13.1 \
     TF_NEED_CUDA=0 \
     TF_NEED_MPI=0
 
-RUN pip install --no-cache-dir "numpy==$NUMPY_VERSION" && \
-    apk add --no-cache --virtual build-deps cmake build-base linux-headers \
+RUN apk add --no-cache --virtual build-deps cmake build-base linux-headers \
             bash wget file openblas-dev freetype-dev libjpeg-turbo-dev \
             libpng-dev openjdk8 swig && \
+    pip install --no-cache-dir "numpy==$NUMPY_VERSION" && \
     echo 'Download and install bazel' && \
     wget -q " https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \
          -O bazel.zip && \

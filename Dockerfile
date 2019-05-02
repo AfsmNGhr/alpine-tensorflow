@@ -21,7 +21,7 @@ RUN apk add --no-cache --virtual build-deps cmake build-base linux-headers \
             libpng-dev openjdk8 swig && \
     pip install --no-cache-dir "numpy==$NUMPY_VERSION" && \
     echo 'Download and install bazel' && \
-    wget -q " https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \
+    wget -q "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \
          -O bazel.zip && \
     unzip -qq bazel.zip && \
     rm bazel.zip && \

@@ -17,11 +17,14 @@ ENV TENSORFLOW_VERSION=1.13.1 \
     TF_NEED_CUDA=0 \
     TF_NEED_MPI=0
 
-RUN apk add --no-cache --virtual build-deps cmake build-base linux-headers \
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+            openblas libpng libjpeg-turbo hdf5 libstdc++ && \
+    apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+            --virtual build-deps cmake build-base linux-headers \
             bash wget file openblas-dev freetype-dev libjpeg-turbo-dev \
-            libpng-dev openjdk8 swig zip patch && \
-    pip install --no-cache-dir --no-deps "numpy==$NUMPY_VERSION" h5py \
-                keras_applications==1.0.5 keras_preprocessing==1.0.3 && \
+            libpng-dev hdf5-dev openjdk8 swig zip patch && \
+    pip install --no-cache-dir "numpy==$NUMPY_VERSION" h5py && \
+    pip install --no-cache-dir --no-deps keras_applications==1.0.7 keras_preprocessing==1.0.9 && \
     echo 'Downloading and compiling bazel' && \
     wget -q "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \
          -O bazel.zip && \
@@ -29,7 +32,7 @@ RUN apk add --no-cache --virtual build-deps cmake build-base linux-headers \
     unzip -qd "bazel-${BAZEL_VERSION}" bazel.zip && \
     rm bazel.zip && \
     cd "bazel-${BAZEL_VERSION}" && \
-    sed -i -e 's/-classpath/-J-Xmx8192m -J-Xms128m -classpath/g' \
+    sed -i -e 's/-classpath/-J-Xmx6096m -J-Xms128m -classpath/g' \
         scripts/bootstrap/compile.sh && \
     bash compile.sh && \
     cp -p output/bazel /usr/local/bin/ && \
@@ -45,12 +48,13 @@ RUN apk add --no-cache --virtual build-deps cmake build-base linux-headers \
     sed -i -e '/define TF_GENERATE_STACKTRACE/d' tensorflow/core/platform/stacktrace_handler.cc && \
     bazel build -c opt --local_resources "${LOCAL_RESOURCES}" //tensorflow/tools/pip_package:build_pip_package && \
     ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg && \
+    cd / && \
     cp /tmp/tensorflow_pkg/*.whl /root && \
     pip install --no-cache-dir /root/*.whl && \
-    python -c 'import tensorflow; print(tensorflow.__version__)' && \
+    python -c 'import tensorflow as tf; print(tf.__version__)' && \
     find /usr/lib /usr/local \
          \( -type d -a -name '__pycache__' -o -name '(test|tests)' \) \
-         -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
+         -o \( -type f -a -name '(*.pyc|*.pxd)' -o -name '(*.pyo|*.pyd)' \) \
          -exec rm -rf '{}' + && \
     find /usr/lib* /usr/local/lib* -name '*.so' -print \
        -exec sh -c 'file "{}" | grep -q "not stripped" && strip -s "{}"' \; && \

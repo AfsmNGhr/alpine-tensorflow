@@ -28,7 +28,7 @@ TF_NEED_MPI=0
 Use the pre-built binary wheel hosted on Github.
 
 ```sh
-pip install *.whl
+pip install https://github.com/AfsmNGhr/alpine-py3-tensorflow/releases/download/alpine3.9-python3.7.3-tensorflow1.13.1/tensorflow-1.13.1-cp37-cp37m-linux_x86_64.whl
 ```
 
 If you want to compile it yourself, use the Dockerfile. Note that it can take many hours.

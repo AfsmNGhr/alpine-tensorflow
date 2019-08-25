@@ -1,7 +1,7 @@
-FROM python:3.7.3-alpine3.9
+FROM python:3.7.4-alpine3.10
 
-ENV TENSORFLOW_VERSION=1.13.1 \
-    NUMPY_VERSION=1.16.1 \
+ENV TENSORFLOW_VERSION=1.13.2 \
+    NUMPY_VERSION=1.17.0 \
     JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk \
     BAZEL_VERSION=0.19.2 \
     LOCAL_RESOURCES=2048,1.0,1.0 \
@@ -24,7 +24,7 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
             bash wget file openblas-dev freetype-dev libjpeg-turbo-dev \
             libpng-dev hdf5-dev openjdk8 swig zip patch && \
     pip install --no-cache-dir "numpy==$NUMPY_VERSION" h5py && \
-    pip install --no-cache-dir --no-deps keras_applications==1.0.7 keras_preprocessing==1.0.9 && \
+    pip install --no-cache-dir --no-deps keras_applications==1.0.8 keras_preprocessing==1.1.0 && \
     echo 'Downloading and compiling bazel' && \
     wget -q "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \
          -O bazel.zip && \

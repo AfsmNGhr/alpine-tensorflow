@@ -12,6 +12,4 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Run multi-stage build
-        run:
-          using: 'docker'
-          image: 'Dockerfile'
+        run: docker build .

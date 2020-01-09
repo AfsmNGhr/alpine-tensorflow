@@ -1,0 +1,12 @@
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Compile tensorflow for alpine linux
+    steps:
+
+      - name: Run multi-stage build
+        runs:
+          using: 'docker'
+          image: 'Dockerfile'

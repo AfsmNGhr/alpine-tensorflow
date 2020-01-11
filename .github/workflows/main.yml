@@ -10,7 +10,7 @@ jobs:
     env:
       ALPINE_PYTHON_IMAGE: python:3.7.6-alpine3.11
       TF_VERSION: 2.1.0
-      PACKAGE_NAME: ${{ format('{0}/{1}/{2}', 'afsmnghr', github.repository, github.repository) }}
+      PACKAGE_NAME: afsmnghr/alpine-tensorflow/alpine-tensorflow
     steps:
 
       - name: Checkout

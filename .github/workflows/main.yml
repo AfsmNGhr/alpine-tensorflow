@@ -1,15 +1,33 @@
+name: Tensorflow for Alpine linux
+
 on:
-  pull_request:
   push:
 
 jobs:
-  build:
+  builder:
+    name: Run multi-stage build
     runs-on: ubuntu-latest
-    name: Compile TF for alpine linux
+
+    env:
+      ALPINE_PYTHON_IMAGE: python:3.7.6-alpine3.11
+      TF_VERSION: 2.1.0
+      PACKAGE_NAME: afsmnghr/alpine-tensorflow/alpine-tensorflow
+      IMAGE_NAME: docker.pkg.github.com/afsmnghr/alpine-tensorflow/alpine-tensorflow
+
     steps:
 
       - name: Checkout
         uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
 
-      - name: Run multi-stage build
-        run: docker build .
+      - name: Build and publish base alpine image to registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: ${{ PACKAGE_NAME }}-base:${{ TF_VERSION }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: docker.pkg.github.com
+          buildoptions: '--target base'
+          buildargs: ALPINE_PYTHON_IMAGE
+          cache: true

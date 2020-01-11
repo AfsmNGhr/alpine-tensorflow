@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Build and publish base alpine image to registry
+      - name: Base stage
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
           name: ${{ format('{0}:{1}-base', env.PACKAGE_NAME, env.TF_VERSION) }}
@@ -26,5 +26,38 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
           buildoptions: '--target base'
-          buildargs: ALPINE_PYTHON_IMAGE
+          buildargs: ALPINE_PYTHON_IMAGE, TF_VERSION
+          cache: true
+
+      - name: Build-base stage
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: ${{ format('{0}:{1}-build-base', env.PACKAGE_NAME, env.TF_VERSION) }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: docker.pkg.github.com
+          buildoptions: '--target build-base'
+          buildargs: ALPINE_PYTHON_IMAGE, TF_VERSION
+          cache: true
+
+      - name: Compile stage
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: ${{ format('{0}:{1}-compile', env.PACKAGE_NAME, env.TF_VERSION) }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: docker.pkg.github.com
+          buildoptions: '--target compile'
+          buildargs: ALPINE_PYTHON_IMAGE, TF_VERSION
+          cache: true
+
+      - name: Release stage
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: ${{ format('{0}:{1}', env.PACKAGE_NAME, env.TF_VERSION) }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: docker.pkg.github.com
+          buildoptions: '--target release'
+          buildargs: ALPINE_PYTHON_IMAGE, TF_VERSION
           cache: true

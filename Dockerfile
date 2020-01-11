@@ -17,7 +17,7 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
     rm -rf /usr/share/man /usr/local/share/man /usr/share/hdf5_examples \
            /tmp/* /var/cache/apk/* /var/log/* ~/.cache
 
-FROM base as build
+FROM base as build-base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
             --virtual build-deps git coreutils cmake build-base linux-headers libexecinfo-dev \
@@ -61,6 +61,8 @@ RUN while true; do \
     rm -rf /bazel* /usr/share/man /usr/local/share/man /tmp/* /var/cache/apk/* /var/log/* ~/.cache && \
     bazel version
 
+FROM build-base as compile
+
 RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     while true; do \
       wget -qc "https://github.com/tensorflow/tensorflow/archive/v${TF_VERSION}.tar.gz" \
@@ -80,7 +82,7 @@ RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
 
 FROM base as release
 
-COPY --from=build /root/*.whl /root
+COPY --from=compile /root/*.whl /root
 
 RUN apk add --no-cache --virtual build-deps binutils file && \
     pip install --no-cache-dir /root/*.whl && \

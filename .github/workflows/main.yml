@@ -5,13 +5,13 @@ on:
 
 jobs:
   builder:
-    name: Run multi-stage build
-    runs-on: ubuntu-latest
     env:
       ALPINE_PYTHON_IMAGE: python:3.7.6-alpine3.11
       TF_VERSION: 2.1.0
       PACKAGE_NAME: afsmnghr/alpine-tensorflow/alpine-tensorflow
       IMAGE_NAME: docker.pkg.github.com/afsmnghr/alpine-tensorflow/alpine-tensorflow
+    name: Run multi-stage build
+    runs-on: ubuntu-latest
     steps:
 
       - name: Checkout

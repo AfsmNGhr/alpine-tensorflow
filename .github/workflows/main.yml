@@ -10,7 +10,7 @@ jobs:
     env:
       ALPINE_PYTHON_IMAGE: python:3.7.6-alpine3.11
       TF_VERSION: 2.1.0
-      PACKAGE_NAME: ${{ join([github.actor, '/', github.repository]) }}
+      PACKAGE_NAME: ${{ format('{0}/{1}', github.actor, github.repository) }}
     steps:
 
       - name: Checkout
@@ -21,7 +21,7 @@ jobs:
       - name: Build and publish base alpine image to registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: ${{ join([env.PACKAGE_NAME, ':', env.TF_VERSION], '-base') }}
+          name: ${{ format('{0}:{1}-base', env.PACKAGE_NAME, env.TF_VERSION) }}
           username: ${{ github.actor }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com

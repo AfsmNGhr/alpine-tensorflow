@@ -9,7 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ALPINE_PYTHON_IMAGE: python:3.7.6-alpine3.11
+      BAZEL_VERSION: 0.29.1
       TF_VERSION: 2.1.0
+      TF_BUILD_OPTIONS: --config opt --config=nocuda --config=noaws --config=nogcp --config=nohdfs --config=noignite --config=nokafka --config=nonccl
+      LOCAL_RESOURCES: 4096,8.0,1.0
       PACKAGE_NAME: afsmnghr/alpine-tensorflow/alpine-tensorflow
     steps:
 
@@ -26,7 +29,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
           buildoptions: '--target base'
-          buildargs: ALPINE_PYTHON_IMAGE, TF_VERSION
+          buildargs: ALPINE_PYTHON_IMAGE
           cache: true
 
       - name: Build-base stage
@@ -37,7 +40,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
           buildoptions: '--target build-base'
-          buildargs: ALPINE_PYTHON_IMAGE, TF_VERSION
+          buildargs: BAZEL_VERSION, TF_VERSION, TF_BUILD_OPTIONS, LOCAL_RESOURCES
           cache: true
 
       - name: Compile stage
@@ -48,7 +51,6 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
           buildoptions: '--target compile'
-          buildargs: ALPINE_PYTHON_IMAGE, TF_VERSION
           cache: true
 
       - name: Release stage
@@ -59,5 +61,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
           buildoptions: '--target release'
-          buildargs: ALPINE_PYTHON_IMAGE, TF_VERSION
           cache: true

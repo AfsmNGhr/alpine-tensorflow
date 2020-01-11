@@ -31,18 +31,7 @@ ENV BAZEL_VERSION="$BAZEL_VERSION" \
     TF_VERSION="$TF_VERSION" \
     TF_BUILD_OPTIONS="$TF_BUILD_OPTIONS" \
     JAVA_HOME=/usr/lib/jvm/default-jvm \
-    LOCAL_RESOURCES="$LOCAL_RESOURCES" \
-    TF_NEED_JEMALLOC=1 \
-    TF_NEED_GCP=0 \
-    TF_NEED_HDFS=0 \
-    TF_NEED_S3=0 \
-    TF_ENABLE_XLA=0 \
-    TF_NEED_GDR=0 \
-    TF_NEED_VERBS=0 \
-    TF_NEED_OPENCL=0 \
-    TF_NEED_CUDA=0 \
-    TF_NEED_MPI=0 \
-    TF_SET_ANDROID_WORKSPACE=0
+    LOCAL_RESOURCES="$LOCAL_RESOURCES"
 
 RUN while true; do \
       wget -qc "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \

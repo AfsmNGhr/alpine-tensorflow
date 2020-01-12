@@ -7,6 +7,15 @@ jobs:
   builder:
     name: Run multi-stage build
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        stage: ['base', 'build-base', 'compile', 'release']
+        include:
+          - stage: 'base'
+            buildargs: ALPINE_PYTHON_IMAGE
+          - stage: 'build-base'
+            buildargs: BAZEL_VERSION, TF_VERSION, TF_BUILD_OPTIONS, LOCAL_RESOURCES
     env:
       ALPINE_PYTHON_IMAGE: python:3.7.6-alpine3.11
       BAZEL_VERSION: 0.29.1
@@ -21,44 +30,13 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Base stage
+      - name: 'Run ${{ matrix.stage }} stage'
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: ${{ format('{0}:{1}-base', env.PACKAGE_NAME, env.TF_VERSION) }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          name: '${{ format('{0}:{1}-{2}', env.PACKAGE_NAME, env.TF_VERSION, matrix.stage) }}'
+          username: '${{ github.actor }}'
+          password: '${{ secrets.DOCKER_PASSWORD }}'
           registry: docker.pkg.github.com
-          buildoptions: '--target base'
-          buildargs: ALPINE_PYTHON_IMAGE
-          cache: true
-
-      - name: Build-base stage
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: ${{ format('{0}:{1}-build-base', env.PACKAGE_NAME, env.TF_VERSION) }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          registry: docker.pkg.github.com
-          buildoptions: '--target build-base'
-          buildargs: BAZEL_VERSION, TF_VERSION, TF_BUILD_OPTIONS, LOCAL_RESOURCES
-          cache: true
-
-      - name: Compile stage
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: ${{ format('{0}:{1}-compile', env.PACKAGE_NAME, env.TF_VERSION) }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          registry: docker.pkg.github.com
-          buildoptions: '--target compile'
-          cache: true
-
-      - name: Release stage
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: ${{ format('{0}:{1}', env.PACKAGE_NAME, env.TF_VERSION) }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          registry: docker.pkg.github.com
-          buildoptions: '--target release'
+          buildoptions: '--target ${{ matrix.stage }}'
+          buildargs: '${{ matrix.buildargs }}'
           cache: true

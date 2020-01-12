@@ -20,7 +20,7 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
 FROM base as build-base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-            --virtual build-deps git coreutils cmake build-base linux-headers libexecinfo-dev \
+            --virtual build-deps git coreutils cmake build-base linux-headers musl-utils \
             bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch
 
 ARG BAZEL_VERSION="${BAZEL_VERSION:-0.29.1}"
@@ -52,8 +52,7 @@ RUN while true; do \
 
 FROM build-base as compile
 
-RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
-    while true; do \
+RUN while true; do \
       wget -qc "https://github.com/tensorflow/tensorflow/archive/v${TF_VERSION}.tar.gz" \
            -O tensorflow.tar.gz --show-progress --progress=bar:force -t 0 \
            --retry-connrefused --waitretry=2 --read-timeout=30 && \

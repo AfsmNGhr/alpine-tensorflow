@@ -50,6 +50,8 @@ RUN while true; do \
     rm -rf /bazel* /usr/share/man /usr/local/share/man /tmp/* /var/cache/apk/* /var/log/* ~/.cache && \
     bazel version
 
+FROM build-base as compile
+
 RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     while true; do \
       wget -qc "https://github.com/tensorflow/tensorflow/archive/v${TF_VERSION}.tar.gz" \

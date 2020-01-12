@@ -14,12 +14,15 @@ jobs:
       max-parallel: 1
       matrix:
         stage: ['base', 'build-base', 'compile', 'release']
-        postfix: ${{ format('-{0}', matrix.stage) }}
         include:
           - stage: 'base'
             buildargs: ALPINE_PYTHON_IMAGE
+            postfix: '-base'
           - stage: 'build-base'
             buildargs: BAZEL_VERSION, TF_VERSION, TF_BUILD_OPTIONS, LOCAL_RESOURCES
+            postfix: '-build-base'
+          - stage: 'compile'
+            postfix: '-compile'
           - stage: 'release'
             postfix: ''
     env:

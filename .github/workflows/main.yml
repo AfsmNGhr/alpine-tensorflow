@@ -11,7 +11,7 @@ jobs:
       ALPINE_PYTHON_IMAGE: python:3.7.6-alpine3.11
       BAZEL_VERSION: 0.29.1
       TF_VERSION: 2.1.0
-      TF_BUILD_OPTIONS: --config opt --config=nocuda --config=noaws --config=nogcp --config=nohdfs --config=noignite --config=nokafka --config=nonccl
+      TF_BUILD_OPTIONS: --config opt --config=noaws --config=nogcp --config=nohdfs --config=noignite --config=nokafka --config=nonccl
       LOCAL_RESOURCES: 4096,8.0,1.0
       PACKAGE_NAME: afsmnghr/alpine-tensorflow/alpine-tensorflow
     steps:

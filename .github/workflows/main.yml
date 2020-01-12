@@ -24,7 +24,7 @@ jobs:
       - name: Base stage
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: ${{ format('{0}-base:{1}', env.PACKAGE_NAME, env.TF_VERSION) }}
+          name: ${{ format('{0}:{1}-base', env.PACKAGE_NAME, env.TF_VERSION) }}
           username: ${{ github.actor }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
@@ -35,7 +35,7 @@ jobs:
       - name: Build-base stage
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: ${{ format('{0}-build-base:{1}', env.PACKAGE_NAME, env.TF_VERSION) }}
+          name: ${{ format('{0}:{1}-build-base', env.PACKAGE_NAME, env.TF_VERSION) }}
           username: ${{ github.actor }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
@@ -46,7 +46,7 @@ jobs:
       - name: Compile stage
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: ${{ format('{0}-compile:{1}', env.PACKAGE_NAME, env.TF_VERSION) }}
+          name: ${{ format('{0}:{1}-compile', env.PACKAGE_NAME, env.TF_VERSION) }}
           username: ${{ github.actor }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com

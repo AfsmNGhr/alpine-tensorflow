@@ -30,13 +30,13 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: 'Run ${{ matrix.stage }} stage'
+      - name: Run ${{ matrix.stage }} stage
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: '${{ format('{0}:{1}-{2}', env.PACKAGE_NAME, env.TF_VERSION, matrix.stage) }}'
-          username: '${{ github.actor }}'
-          password: '${{ secrets.DOCKER_PASSWORD }}'
+          name: ${{ format('{0}:{1}-{2}', env.PACKAGE_NAME, env.TF_VERSION, matrix.stage) }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
-          buildoptions: '--target ${{ matrix.stage }}'
-          buildargs: '${{ matrix.buildargs }}'
+          buildoptions: --target ${{ matrix.stage }}
+          buildargs: ${{ matrix.buildargs }}
           cache: true

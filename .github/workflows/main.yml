@@ -4,18 +4,24 @@ on:
   push:
 
 jobs:
-  builder:
+  build:
     name: Run multi-stage build
-    runs-on: ubuntu-latest
+    container:
+      image: docker:19.03.5-dind-rootless
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
     strategy:
       max-parallel: 1
       matrix:
         stage: ['base', 'build-base', 'compile', 'release']
+        postfix: -${{ matrix.stage }}
         include:
           - stage: 'base'
             buildargs: ALPINE_PYTHON_IMAGE
           - stage: 'build-base'
             buildargs: BAZEL_VERSION, TF_VERSION, TF_BUILD_OPTIONS, LOCAL_RESOURCES
+          - stage: 'release'
+            postfix: ''
     env:
       ALPINE_PYTHON_IMAGE: python:3.7.6-alpine3.11
       BAZEL_VERSION: 0.29.1
@@ -33,7 +39,7 @@ jobs:
       - name: Run ${{ matrix.stage }} stage
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: ${{ format('{0}:{1}-{2}', env.PACKAGE_NAME, env.TF_VERSION, matrix.stage) }}
+          name: ${{ format('{0}{1}:{2}', env.PACKAGE_NAME, matrix.postfix, env.TF_VERSION) }}
           username: ${{ github.actor }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com

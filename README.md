@@ -8,24 +8,8 @@
 Compile tensorflow with options:
 
 ```conf
-TF_NEED_JEMALLOC=1
-TF_NEED_GCP=0
-TF_NEED_HDFS=0
-TF_NEED_S3=0
-TF_ENABLE_XLA=0
-TF_NEED_GDR=0
-TF_NEED_VERBS=0
-TF_NEED_OPENCL=0
-TF_NEED_CUDA=0
-TF_NEED_MPI=0
-TF_SET_ANDROID_WORKSPACE=0
-```
-
-Build options:
-
-```conf
 BAZEL_VERSION=0.29.1
-TF_BUILD_OPTIONS=-c opt
+TF_BUILD_OPTIONS= --config opt --config=noaws --config=nogcp --config=nohdfs --config=nonccl
 LOCAL_RESOURCES=4096,8.0,1.0
 ```
 
@@ -47,10 +31,4 @@ docker build --build-arg ALPINE_PYTHON_IMAGE=python:3.8.0-alpine3.11 \
              --build-arg TF_VERSION=1.14.0 \
              --build-arg TF_BUILD_OPTIONS=-c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2
              -t tensorflow:1.14.0-alpine3.11 .
-```
-
-#### How to play:
-
-```sh
-docker run --rm -it tensorflow:1.14.0-alpine3.11 python
 ```

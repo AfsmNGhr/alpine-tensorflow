@@ -20,7 +20,7 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
 FROM base as build-base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-            --virtual build-deps git coreutils cmake build-base linux-headers musl-utils \
+            --virtual build-deps git coreutils cmake build-base linux-headers gcompat \
             bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch
 
 ARG BAZEL_VERSION="${BAZEL_VERSION:-0.29.1}"

@@ -24,14 +24,9 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
             bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch
 
 ARG BAZEL_VERSION="${BAZEL_VERSION:-0.29.1}"
-ARG LOCAL_RESOURCES="${LOCAL_RESOURCES:-4096,8.0,1.0}"
-ARG TF_VERSION="${TF_VERSION:-2.1.0}"
-ARG TF_BUILD_OPTIONS="${TF_BUILD_OPTIONS:--c opt}"
+
 ENV BAZEL_VERSION="$BAZEL_VERSION" \
-    TF_VERSION="$TF_VERSION" \
-    TF_BUILD_OPTIONS="$TF_BUILD_OPTIONS" \
-    JAVA_HOME=/usr/lib/jvm/default-jvm \
-    LOCAL_RESOURCES="$LOCAL_RESOURCES"
+    JAVA_HOME=/usr/lib/jvm/default-jvm
 
 RUN while true; do \
       wget -qc "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \
@@ -51,6 +46,14 @@ RUN while true; do \
     bazel version
 
 FROM build-base as compile
+
+ARG LOCAL_RESOURCES="${LOCAL_RESOURCES:-4096,8.0,1.0}"
+ARG TF_VERSION="${TF_VERSION:-2.1.0}"
+ARG TF_BUILD_OPTIONS="${TF_BUILD_OPTIONS:--c opt}"
+
+ENV TF_VERSION="$TF_VERSION" \
+    TF_BUILD_OPTIONS="$TF_BUILD_OPTIONS" \
+    LOCAL_RESOURCES="$LOCAL_RESOURCES"
 
 RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     while true; do \

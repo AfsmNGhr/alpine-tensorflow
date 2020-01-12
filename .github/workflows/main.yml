@@ -40,7 +40,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
           buildoptions: '--target build-base'
-          buildargs: BAZEL_VERSION, TF_VERSION, TF_BUILD_OPTIONS, LOCAL_RESOURCES
+          buildargs: BAZEL_VERSION
           cache: true
 
       - name: Compile stage
@@ -51,6 +51,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
           buildoptions: --target compile --cache-from=${{ format('docker.pkg.github.com/{0}:{1}-build-base', env.PACKAGE_NAME, env.TF_VERSION) }}
+          buildargs: TF_VERSION, TF_BUILD_OPTIONS, LOCAL_RESOURCES
           cache: true
 
       - name: Release stage

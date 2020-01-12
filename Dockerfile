@@ -52,7 +52,8 @@ RUN while true; do \
 
 FROM build-base as compile
 
-RUN while true; do \
+RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
+    while true; do \
       wget -qc "https://github.com/tensorflow/tensorflow/archive/v${TF_VERSION}.tar.gz" \
            -O tensorflow.tar.gz --show-progress --progress=bar:force -t 0 \
            --retry-connrefused --waitretry=2 --read-timeout=30 && \

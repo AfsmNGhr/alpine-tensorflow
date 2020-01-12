@@ -7,6 +7,11 @@ jobs:
   build:
     name: Multi-stage build
     runs-on: ubuntu-latest
+    container:
+      image: docker:19.03.5-dind-rootless
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+        - docker_cache:/var/lib/docker
     env:
       ALPINE_PYTHON_IMAGE: python:3.7.6-alpine3.11
       BAZEL_VERSION: 0.29.1

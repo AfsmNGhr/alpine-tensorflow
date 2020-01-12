@@ -48,6 +48,16 @@ jobs:
           buildargs: BAZEL_VERSION, TF_VERSION, TF_BUILD_OPTIONS, LOCAL_RESOURCES
           cache: true
 
+      - name: Bazel stage
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: ${{ format('{0}:{1}-bazel', env.PACKAGE_NAME, env.TF_VERSION) }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: docker.pkg.github.com
+          buildoptions: '--target bazel'
+          cache: true
+
       - name: Compile stage
         uses: elgohr/Publish-Docker-Github-Action@master
         with:

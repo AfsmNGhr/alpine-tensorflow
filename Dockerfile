@@ -33,6 +33,8 @@ ENV BAZEL_VERSION="$BAZEL_VERSION" \
     JAVA_HOME=/usr/lib/jvm/default-jvm \
     LOCAL_RESOURCES="$LOCAL_RESOURCES"
 
+FROM build-base as bazel
+
 RUN while true; do \
       wget -qc "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \
            -O bazel.zip --show-progress --progress=bar:force -t 0 \
@@ -50,7 +52,7 @@ RUN while true; do \
     rm -rf /bazel* /usr/share/man /usr/local/share/man /tmp/* /var/cache/apk/* /var/log/* ~/.cache && \
     bazel version
 
-FROM build-base as compile
+FROM bazel as compile
 
 RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     while true; do \

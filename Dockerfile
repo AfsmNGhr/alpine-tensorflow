@@ -20,10 +20,13 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
 FROM base as build-base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-            --virtual build-deps git coreutils cmake build-base linux-headers libexecinfo-dev libc6-compat \
+            --virtual build-deps git coreutils cmake build-base linux-headers libexecinfo-dev gcompat \
             bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch
 
 ARG BAZEL_VERSION="${BAZEL_VERSION:-0.29.1}"
+
+# Fix: broken link for glibc with LD_LIBRARY_PATH=/lib64
+# https://gitlab.alpinelinux.org/alpine/aports/issues/10140
 
 ENV BAZEL_VERSION="$BAZEL_VERSION" \
     JAVA_HOME=/usr/lib/jvm/default-jvm \

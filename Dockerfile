@@ -25,7 +25,7 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
 
 ARG BAZEL_VERSION="${BAZEL_VERSION:-0.29.1}"
 
-# Fix: broken link for glibc with LD_LIBRARY_PATH=/lib64
+# FIX: broken link for glibc with LD_LIBRARY_PATH=/lib64
 # https://gitlab.alpinelinux.org/alpine/aports/issues/10140
 
 ENV BAZEL_VERSION="$BAZEL_VERSION" \
@@ -59,6 +59,8 @@ ENV TF_VERSION="$TF_VERSION" \
     TF_BUILD_OPTIONS="$TF_BUILD_OPTIONS" \
     LOCAL_RESOURCES="$LOCAL_RESOURCES"
 
+# FIX: fatal error: sys/sysctl.h: No such file or directory
+
 RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     while true; do \
       wget -qc "https://github.com/tensorflow/tensorflow/archive/v${TF_VERSION}.tar.gz" \
@@ -69,7 +71,7 @@ RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     rm tensorflow.tar.gz && \
     cd "tensorflow-${TF_VERSION}" && \
     yes '' | ./configure || exit 1 && \
-    bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \
+    bazel build $TF_BUILD_OPTIONS --action_env=LD_LIBRARY_PATH --local_resources $LOCAL_RESOURCES \
           //tensorflow/tools/pip_package:build_pip_package --verbose_failures && \
     ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /root && \
     bazel shutdown && \

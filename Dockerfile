@@ -20,8 +20,13 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
 FROM base as build-base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-            --virtual build-deps git coreutils cmake build-base linux-headers libexecinfo-dev gcompat libc6-compat \
-            bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch
+            --virtual build-deps git coreutils cmake build-base linux-headers libexecinfo-dev \
+            bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch && \
+    wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
+    wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.30-r0/glibc-2.30-r0.apk && \
+    wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.30-r0/glibc-bin-2.30-r0.apk && \
+    apk add --no-cache glibc-2.30-r0.apk glibc-bin-2.30-r0.apk && \
+    rm -rf /tmp/* /var/cache/apk/* /var/log/* ~/.cache /root/.wget-hsts
 
 ARG BAZEL_VERSION="${BAZEL_VERSION:-0.29.1}"
 
@@ -42,7 +47,7 @@ RUN while true; do \
     echo "startup --server_javabase=$JAVA_HOME --io_nice_level 7" >> /etc/bazel.bazelrc && \
     cp -p output/bazel /usr/local/bin/ && \
     cd / && \
-    rm -rf /bazel* /usr/share/man /usr/local/share/man /tmp/* /var/cache/apk/* /var/log/* ~/.cache && \
+    rm -rf /bazel* /usr/share/man /usr/local/share/man /tmp/* /var/cache/apk/* /var/log/* ~/.cache ~/.wget-hsts && \
     bazel version
 
 FROM build-base as compile
@@ -70,7 +75,7 @@ RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /root && \
     bazel shutdown && \
     cd / && \
-    rm -rf /tensorflow* /usr/share/man /usr/local/share/man /tmp/* /var/cache/apk/* /var/log/* ~/.cache
+    rm -rf /tensorflow* /usr/share/man /usr/local/share/man /tmp/* /var/cache/apk/* /var/log/* ~/.cache ~/.wget-hsts
 
 FROM base as release
 

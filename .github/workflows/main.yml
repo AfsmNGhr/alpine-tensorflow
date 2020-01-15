@@ -1,4 +1,4 @@
-name: Tensorflow for Alpine linux
+name: Tensorflow for Alpine Linux
 
 on:
   push:

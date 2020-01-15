@@ -9,7 +9,7 @@ Compile tensorflow with options:
 
 ```conf
 BAZEL_VERSION=0.29.1
-TF_BUILD_OPTIONS= --config opt --config=noaws --config=nogcp --config=nohdfs --config=nonccl
+TF_BUILD_OPTIONS=--config opt --config=noaws --config=nogcp --config=nohdfs --config=nonccl
 LOCAL_RESOURCES=4096,8.0,1.0
 ```
 

@@ -41,7 +41,7 @@ jobs:
           registry: docker.pkg.github.com
           buildoptions: '--target build-base'
           buildargs: BAZEL_VERSION
-          cache: true
+          cache: false
 
       - name: Compile stage
         uses: elgohr/Publish-Docker-Github-Action@master

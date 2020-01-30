@@ -42,9 +42,7 @@ ENV TF_VERSION="$TF_VERSION" \
 # FIX: remove include sys/sysctl.h
 # FIX: remove pthread_getname_np fn
 
-RUN sed -i -e '/#include <sys/sysctl.h>/d' tensorflow/core/platform/env.cc && \
-    sed -i -e 's/= pthread_getname_np(pthread_self(), buf, static_cast<size_t>(100));/= 1/g' tensorflow/core/platform/default/env.cc && \
-    while true; do \
+RUN while true; do \
       wget -qc "https://github.com/tensorflow/tensorflow/archive/v${TF_VERSION}.tar.gz" \
            -O tensorflow.tar.gz --show-progress --progress=bar:force -t 0 \
            --retry-connrefused --waitretry=2 --read-timeout=30 && \
@@ -53,6 +51,8 @@ RUN sed -i -e '/#include <sys/sysctl.h>/d' tensorflow/core/platform/env.cc && \
     rm tensorflow.tar.gz && \
     cd "tensorflow-${TF_VERSION}" && \
     echo '2.0.0-' > .bazelversion && \
+    sed -i -e '/#include <sys/sysctl.h>/d' tensorflow/core/platform/env.cc && \
+    sed -i -e 's/= pthread_getname_np(pthread_self(), buf, static_cast<size_t>(100));/= 1/g' tensorflow/core/platform/default/env.cc && \
     yes '' | ./configure || exit 1 && \
     bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \
           //tensorflow/tools/pip_package:build_pip_package --verbose_failures && \

@@ -39,8 +39,8 @@ ENV TF_VERSION="$TF_VERSION" \
     TF_IGNORE_MAX_BAZEL_VERSION=1 \
     LOCAL_RESOURCES="$LOCAL_RESOURCES"
 
-# FIX: set link to sys/sysctl.h
-# FIX: don't use pthread_getname_np
+# FIX: set link to sys/sysctl.h (@hwloc//:hwloc)
+# FIX: don't use pthread_getname_np (musl)
 
 RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     while true; do \
@@ -52,7 +52,8 @@ RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     rm tensorflow.tar.gz && \
     cd "tensorflow-${TF_VERSION}" && \
     echo '2.0.0-' > .bazelversion && \
-    sed -i -e 's/= pthread_getname_np(pthread_self(), buf, static_cast<size_t>(100));/= 1/g' ./tensorflow/core/platform/default/env.cc && \
+    sed -i -e 's/= pthread_getname_np(pthread_self(), buf, static_cast<size_t>(100));/= 1;/g' \
+        ./tensorflow/core/platform/default/env.cc && \
     yes '' | ./configure || exit 1 && \
     bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \
           //tensorflow/tools/pip_package:build_pip_package --verbose_failures && \

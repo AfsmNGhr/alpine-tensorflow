@@ -50,11 +50,10 @@ RUN while true; do \
     tar xzf tensorflow.tar.gz && \
     rm tensorflow.tar.gz && \
     cd "tensorflow-${TF_VERSION}" && \
-    echo '2.0.0-' > .bazelversion
-
-RUN sed -i -e '/#include <sys\/sysctl.h\>/d' tensorflow/core/platform/env.cc
-RUN sed -i -e 's/= pthread_getname_np(pthread_self(), buf, static_cast<size_t>(100));/= 1/g' tensorflow/core/platform/default/env.cc
-RUN yes '' | ./configure || exit 1 && \
+    echo '2.0.0-' > .bazelversion && \
+    sed -i -e '/#include <sys\/sysctl.h\>/d' ./tensorflow/core/platform/env.cc && \
+    sed -i -e 's/= pthread_getname_np(pthread_self(), buf, static_cast<size_t>(100));/= 1/g' tensorflow/core/platform/default/env.cc && \
+    yes '' | ./configure || exit 1 && \
     bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \
           //tensorflow/tools/pip_package:build_pip_package --verbose_failures && \
     ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /root && \

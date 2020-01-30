@@ -20,34 +20,12 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
 FROM base as build-base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-            --virtual build-deps git coreutils cmake build-base linux-headers libexecinfo-dev gcompat \
+            --virtual build-deps git coreutils cmake build-base linux-headers libexecinfo-dev bazel \
             bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch
 
-ARG BAZEL_VERSION="${BAZEL_VERSION:-0.29.1}"
+ENV JAVA_HOME=/usr/lib/jvm/default-jvm
 
-ENV BAZEL_VERSION="$BAZEL_VERSION" \
-    JAVA_HOME=/usr/lib/jvm/default-jvm
-
-# FIX: broken link for glibc
-# https://gitlab.alpinelinux.org/alpine/aports/issues/10140
-
-RUN mkdir -p /lib64 && \
-    ln -s /lib/ld-linux-x86-64.so.2 /lib64/ld-linux-x86-64.so.2 && \
-    while true; do \
-      wget -qc "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \
-           -O bazel.zip --show-progress --progress=bar:force -t 0 \
-           --retry-connrefused --waitretry=2 --read-timeout=30 && \
-      break; done && \
-    mkdir "bazel-${BAZEL_VERSION}" && \
-    unzip -qd "bazel-${BAZEL_VERSION}" bazel.zip && \
-    rm bazel.zip && \
-    cd "bazel-${BAZEL_VERSION}" && \
-    sed -i -e 's/-classpath/-J-Xmx4096m -J-Xms128m -classpath/g' scripts/bootstrap/compile.sh && \
-    EXTRA_BAZEL_ARGS=--host_javabase=@local_jdk//:jdk bash compile.sh && \
-    echo "startup --server_javabase=$JAVA_HOME --io_nice_level 7" >> /etc/bazel.bazelrc && \
-    cp -p output/bazel /usr/local/bin/ && \
-    cd / && \
-    rm -rf /bazel* /usr/share/man /usr/local/share/man /tmp/* /var/cache/apk/* /var/log/* ~/.cache ~/.wget-hsts && \
+RUN echo "startup --server_javabase=$JAVA_HOME --io_nice_level 7" >> /etc/bazel.bazelrc && \
     bazel version
 
 FROM build-base as compile
@@ -58,6 +36,7 @@ ARG TF_BUILD_OPTIONS="${TF_BUILD_OPTIONS:--c opt}"
 
 ENV TF_VERSION="$TF_VERSION" \
     TF_BUILD_OPTIONS="$TF_BUILD_OPTIONS" \
+    TF_IGNORE_MAX_BAZEL_VERSION=1 \
     LOCAL_RESOURCES="$LOCAL_RESOURCES"
 
 # FIX: fatal error: sys/sysctl.h: No such file or directory
@@ -71,6 +50,7 @@ RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     tar xzf tensorflow.tar.gz && \
     rm tensorflow.tar.gz && \
     cd "tensorflow-${TF_VERSION}" && \
+    echo '2.0.0-' > .bazelversion && \
     yes '' | ./configure || exit 1 && \
     bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \
           //tensorflow/tools/pip_package:build_pip_package --verbose_failures && \

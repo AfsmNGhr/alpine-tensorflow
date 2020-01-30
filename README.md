@@ -8,7 +8,6 @@
 Compile tensorflow with options:
 
 ```conf
-BAZEL_VERSION=0.29.1
 TF_BUILD_OPTIONS=--config opt --config=noaws --config=nogcp --config=nohdfs --config=nonccl
 LOCAL_RESOURCES=4096,8.0,1.0
 ```
@@ -27,7 +26,6 @@ If you want to compile it yourself, use the Dockerfile (optional with build args
 
 ```sh
 docker build --build-arg ALPINE_PYTHON_IMAGE=python:3.8.0-alpine3.11 \
-             --build-arg BAZEL_VERSION=0.25.2 \
              --build-arg TF_VERSION=1.14.0 \
              --build-arg TF_BUILD_OPTIONS=-c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2
              -t tensorflow:1.14.0-alpine3.11 .

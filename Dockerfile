@@ -20,12 +20,9 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
 FROM base as build-base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-            --virtual build-deps git coreutils cmake build-base linux-headers libexecinfo-dev bazel \
-            bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch
-
-ENV JAVA_HOME=/usr/lib/jvm/default-jvm
-
-RUN echo "startup --server_javabase=$JAVA_HOME --io_nice_level 7" >> /etc/bazel.bazelrc && \
+            --virtual build-deps git coreutils cmake build-base linux-headers llvm-dev libexecinfo-dev bazel \
+            bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch && \
+    echo "startup --server_javabase=/usr/lib/jvm/default-jvm --io_nice_level 7" >> /etc/bazel.bazelrc && \
     bazel version
 
 FROM build-base as compile
@@ -40,7 +37,7 @@ ENV TF_VERSION="$TF_VERSION" \
     LOCAL_RESOURCES="$LOCAL_RESOURCES"
 
 # FIX: set link to sys/sysctl.h (@hwloc//:hwloc)
-# FIX: don't use pthread_getname_np (musl)
+# FIX: don't use pthread_getname_np (musl-libc)
 
 RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     while true; do \

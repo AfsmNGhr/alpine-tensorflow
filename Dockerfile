@@ -20,8 +20,8 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
 FROM base as build-base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-            --virtual build-deps git coreutils cmake build-base linux-headers llvm-dev libexecinfo-dev bazel \
-            bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch && \
+        --virtual build-deps git coreutils cmake build-base linux-headers llvm-dev gcompat libexecinfo-dev bazel \
+        bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch && \
     echo "startup --server_javabase=/usr/lib/jvm/default-jvm --io_nice_level 7" >> /etc/bazel.bazelrc && \
     bazel version
 
@@ -36,10 +36,13 @@ ENV TF_VERSION="$TF_VERSION" \
     TF_IGNORE_MAX_BAZEL_VERSION=1 \
     LOCAL_RESOURCES="$LOCAL_RESOURCES"
 
+# FIX: broken link for glibc (https://gitlab.alpinelinux.org/alpine/aports/issues/10140)
 # FIX: set link to sys/sysctl.h (@hwloc//:hwloc)
 # FIX: don't use pthread_getname_np (musl-libc)
 
-RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
+RUN mkdir -p /lib64 && \
+    ln -s /lib/ld-linux-x86-64.so.2 /lib64/ld-linux-x86-64.so.2 && \
+    ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     while true; do \
       wget -qc "https://github.com/tensorflow/tensorflow/archive/v${TF_VERSION}.tar.gz" \
            -O tensorflow.tar.gz --show-progress --progress=bar:force -t 0 \
@@ -52,8 +55,8 @@ RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     sed -i -e 's/= pthread_getname_np(pthread_self(), buf, static_cast<size_t>(100));/= 1;/g' \
         ./tensorflow/core/platform/default/env.cc && \
     yes '' | ./configure || exit 1 && \
-    bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \
-          //tensorflow/tools/pip_package:build_pip_package --verbose_failures && \
+    LD_PRELOAD=/lib bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \
+        //tensorflow/tools/pip_package:build_pip_package --verbose_failures && \
     ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /root && \
     bazel shutdown && \
     cd / && \

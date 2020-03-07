@@ -1,5 +1,6 @@
 ## Tensorflow for alpine
 
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2FAfsmNGhr%2Falpine-tensorflow%2Fbadge&style=flat)](https://actions-badge.atrox.dev/AfsmNGhr/alpine-tensorflow/goto)
 ![https://microbadger.com/images/afsmnghr/tensorflow](https://images.microbadger.com/badges/version/afsmnghr/tensorflow.svg)
 ![https://microbadger.com/images/afsmnghr/tensorflow](https://images.microbadger.com/badges/image/afsmnghr/tensorflow.svg)
 ![https://hub.docker.com/r/afsmnghr/tensorflow/](https://img.shields.io/docker/pulls/afsmnghr/tensorflow.svg?style=flat-square)

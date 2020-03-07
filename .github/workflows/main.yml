@@ -39,7 +39,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
           buildoptions: '--target build-base'
-          cache: false
+          cache: true
 
       - name: Compile stage
         uses: elgohr/Publish-Docker-Github-Action@master

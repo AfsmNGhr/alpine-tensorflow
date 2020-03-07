@@ -39,7 +39,10 @@ ENV TF_VERSION="$TF_VERSION" \
     TF_IGNORE_MAX_BAZEL_VERSION=1 \
     LOCAL_RESOURCES="$LOCAL_RESOURCES"
 
-RUN while true; do \
+# FIX: set link to sys/sysctl.h (@hwloc//:hwloc)
+
+RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
+    while true; do \
       wget -qc "https://github.com/tensorflow/tensorflow/archive/v${TF_VERSION}.tar.gz" \
            -O tensorflow.tar.gz --show-progress --progress=bar:force -t 0 \
            --retry-connrefused --waitretry=2 --read-timeout=30 && \

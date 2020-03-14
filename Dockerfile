@@ -25,12 +25,10 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
     echo "startup --server_javabase=/usr/lib/jvm/default-jvm --io_nice_level 7" >> /etc/bazel.bazelrc && \
     bazel version
 
-ENV LANG=C.UTF-8 \
-    ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
-    ALPINE_GLIBC_PACKAGE_VERSION="2.30-r0" \
-    ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-2.30-r0.apk" \
-    ALPINE_GLIBC_BIN_PACKAGE_FILENAME="glibc-bin-2.30-r0.apk" \
-    ALPINE_GLIBC_I18N_PACKAGE_FILENAME="glibc-i18n-2.30-r0.apk"
+ENV ALPINE_GLIBC_BASE_URL=https://github.com/sgerrand/alpine-pkg-glibc/releases/download \
+    ALPINE_GLIBC_PACKAGE_VERSION=2.30-r0 \
+    ALPINE_GLIBC_BASE_PACKAGE_FILENAME=glibc-2.30-r0.apk \
+    ALPINE_GLIBC_BIN_PACKAGE_FILENAME=glibc-bin-2.30-r0.apk
 
 RUN echo \
         "-----BEGIN PUBLIC KEY-----\
@@ -43,19 +41,12 @@ RUN echo \
         1QIDAQAB\
         -----END PUBLIC KEY-----" | sed 's/   */\n/g' > "/etc/apk/keys/sgerrand.rsa.pub" && \
     wget "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-         "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-         "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
+         "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" && \
     apk add --no-cache \
         "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
-    /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true && \
-    echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
-    apk del glibc-i18n && \
-    /usr/glibc/usr/bin/ldconfig /lib /usr/glibc/usr/lib && \
-    ln -s /usr/glibc/usr/lib/ld-linux-x86-64.so.2 /lib/ld-linux-x86-64.so.2 && \
+        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" && \
     rm -f /etc/apk/keys/sgerrand.rsa.pub /root/.wget-hsts \
-       "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
+       "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME"
 
 FROM build-base as compile
 

@@ -1,4 +1,4 @@
-name: Build Wheel
+name: Build wheel for alpine
 
 on:
   push:

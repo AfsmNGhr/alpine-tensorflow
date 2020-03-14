@@ -1,4 +1,4 @@
-## Tensorflow for Alpine Linux
+## Tensorflow for Alpine
 
 ![Build Status](https://github.com/AfsmNGhr/alpine-tensorflow/workflows/Build%20wheel%20for%20alpine/badge.svg)
 

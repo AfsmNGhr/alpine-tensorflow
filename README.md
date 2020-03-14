@@ -1,6 +1,6 @@
 ## Tensorflow for Alpine Linux
 
-![Build Status](https://github.com/AfsmNGhr/alpine-tensorflow/workflows/.github/workflows/Build%20Wheel/badge.svg)
+![Build Status](https://github.com/AfsmNGhr/alpine-tensorflow/workflows/Build%20Wheel/badge.svg)
 
 Compile tensorflow with options:
 

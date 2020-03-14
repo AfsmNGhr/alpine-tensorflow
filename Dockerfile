@@ -49,12 +49,13 @@ RUN echo \
         "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
         "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
         "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
-    rm /etc/apk/keys/sgerrand.rsa.pub && \
     /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true && \
     echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
     apk del glibc-i18n && \
-    rm /root/.wget-hsts && \
-    rm "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
+    /usr/glibc/usr/bin/ldconfig /lib /usr/glibc/usr/lib && \
+    ln -s /usr/glibc/usr/lib/ld-linux-x86-64.so.2 /lib/ld-linux-x86-64.so.2 && \
+    rm -f /etc/apk/keys/sgerrand.rsa.pub /root/.wget-hsts \
+       "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
 
 FROM build-base as compile
 

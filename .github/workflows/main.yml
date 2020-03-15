@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ALPINE_PYTHON_IMAGE: python:3.7.6-alpine3.11
-      TF_VERSION: 2.1.0
+      TF_VERSION: 1.15.2
       TF_BUILD_OPTIONS: --config opt
       LOCAL_RESOURCES: 4096,8.0,1.0
       PACKAGE_NAME: afsmnghr/alpine-tensorflow/alpine-tensorflow

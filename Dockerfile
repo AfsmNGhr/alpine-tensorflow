@@ -51,7 +51,7 @@ RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     echo '2.0.0-' > .bazelversion && \
     yes '' | ./configure || exit 1 && \
     LD_PRELOAD=/lib bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \
-        //tensorflow/core/platform --verbose_failures && \
+        //tensorflow/core --verbose_failures && \
     bazel shutdown && \
     cd / && \
     rm -rf /tensorflow* /usr/share/man /usr/local/share/man /tmp/* /var/cache/apk/* /var/log/* ~/.cache ~/.wget-hsts

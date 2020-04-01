@@ -20,9 +20,9 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
 FROM base as build-base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-        --virtual build-deps git coreutils cmake build-base linux-headers llvm-dev libexecinfo-dev bazel libc6-compat \
+                       --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
+        --virtual build-deps git coreutils cmake build-base linux-headers llvm-dev libexecinfo-dev bazel gcompat \
         bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch && \
-    ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2 && \
     echo "startup --server_javabase=/usr/lib/jvm/default-jvm --io_nice_level 7" >> /etc/bazel.bazelrc && \
     bazel version
 
@@ -42,8 +42,7 @@ ENV TF_VERSION="$TF_VERSION" \
 RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     while true; do \
       wget -qc "https://github.com/tensorflow/tensorflow/archive/v${TF_VERSION}.tar.gz" \
-           -O tensorflow.tar.gz --show-progress --progress=bar:force -t 0 \
-           --retry-connrefused --waitretry=2 --read-timeout=30 && \
+           -O tensorflow.tar.gz -t 0 --retry-connrefused --waitretry=2 --read-timeout=30 && \
       break; done && \
     tar xzf tensorflow.tar.gz && \
     rm tensorflow.tar.gz && \

@@ -20,8 +20,9 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
 FROM base as build-base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-        --virtual build-deps git coreutils cmake build-base linux-headers llvm-dev libexecinfo-dev bazel \
+        --virtual build-deps git coreutils cmake build-base linux-headers llvm-dev libexecinfo-dev bazel libc6-compat \
         bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch && \
+    ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2 && \
     echo "startup --server_javabase=/usr/lib/jvm/default-jvm --io_nice_level 7" >> /etc/bazel.bazelrc && \
     bazel version
 
@@ -50,8 +51,7 @@ RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     echo '2.0.0-' > .bazelversion && \
     yes '' | ./configure || exit 1 && \
     LD_PRELOAD=/lib bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \
-        //tensorflow/tools/pip_package:build_pip_package --verbose_failures && \
-    ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /root && \
+        //tensorflow/core/platform:env_impl --verbose_failures && \
     bazel shutdown && \
     cd / && \
     rm -rf /tensorflow* /usr/share/man /usr/local/share/man /tmp/* /var/cache/apk/* /var/log/* ~/.cache ~/.wget-hsts

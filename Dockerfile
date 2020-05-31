@@ -19,12 +19,12 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/co
 
 FROM base as build-base
 
-ENV BAZEL_VERSION=0.19.2
+ENV BAZEL_VERSION=0.19.2 \
+    JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
         --virtual build-deps git coreutils cmake build-base linux-headers llvm-dev libexecinfo-dev \
         bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch && \
-    echo "startup --server_javabase=/usr/lib/jvm/default-jvm --io_nice_level 7" >> /etc/bazel.bazelrc && \
     wget -q "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \
          -O bazel.zip && \
     mkdir "bazel-${BAZEL_VERSION}" && \

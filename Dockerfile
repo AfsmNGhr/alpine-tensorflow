@@ -1,12 +1,12 @@
-ARG ALPINE_PYTHON_IMAGE="${ALPINE_PYTHON_IMAGE:-'python:3.7.6-alpine3.11'}"
+ARG ALPINE_PYTHON_IMAGE="${ALPINE_PYTHON_IMAGE:-'python:3.7.7-alpine3.11'}"
 FROM "${ALPINE_PYTHON_IMAGE}" as base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
             openblas libpng libjpeg-turbo hdf5 libstdc++ && \
     apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
             --virtual build-deps build-base hdf5-dev linux-headers file && \
-    pip install --no-cache-dir numpy==1.18.0 h5py && \
-    pip install --no-cache-dir --no-deps keras_applications==1.0.8 keras_preprocessing==1.1.0 && \
+    pip install --no-cache-dir numpy==1.18.4 h5py && \
+    pip install --no-cache-dir --no-deps keras_applications==1.0.8 keras_preprocessing==1.1.2 && \
     find /usr/lib* /usr/local/lib* \
          \( -type d -a -name '__pycache__' -o -name '(test|tests)' \) \
          -o \( -type f -a -name '(*.pyc|*.pxd)' -o -name '(*.pyo|*.pyd)' \) \
@@ -25,33 +25,10 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/te
     echo "startup --server_javabase=/usr/lib/jvm/default-jvm --io_nice_level 7" >> /etc/bazel.bazelrc && \
     bazel version
 
-ENV ALPINE_GLIBC_BASE_URL=https://github.com/sgerrand/alpine-pkg-glibc/releases/download \
-    ALPINE_GLIBC_PACKAGE_VERSION=2.30-r0 \
-    ALPINE_GLIBC_BASE_PACKAGE_FILENAME=glibc-2.30-r0.apk \
-    ALPINE_GLIBC_BIN_PACKAGE_FILENAME=glibc-bin-2.30-r0.apk
-
-RUN echo \
-        "-----BEGIN PUBLIC KEY-----\
-        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApZ2u1KJKUu/fW4A25y9m\
-        y70AGEa/J3Wi5ibNVGNn1gT1r0VfgeWd0pUybS4UmcHdiNzxJPgoWQhV2SSW1JYu\
-        tOqKZF5QSN6X937PTUpNBjUvLtTQ1ve1fp39uf/lEXPpFpOPL88LKnDBgbh7wkCp\
-        m2KzLVGChf83MS0ShL6G9EQIAUxLm99VpgRjwqTQ/KfzGtpke1wqws4au0Ab4qPY\
-        KXvMLSPLUp7cfulWvhmZSegr5AdhNw5KNizPqCJT8ZrGvgHypXyiFvvAH5YRtSsc\
-        Zvo9GI2e2MaZyo9/lvb+LbLEJZKEQckqRj4P26gmASrZEPStwc+yqy1ShHLA0j6m\
-        1QIDAQAB\
-        -----END PUBLIC KEY-----" | sed 's/   */\n/g' > "/etc/apk/keys/sgerrand.rsa.pub" && \
-    wget -q "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-         "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" && \
-    apk add --no-cache \
-        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" && \
-    rm -f /etc/apk/keys/sgerrand.rsa.pub /root/.wget-hsts \
-       "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME"
-
 FROM build-base as compile
 
 ARG LOCAL_RESOURCES="${LOCAL_RESOURCES:-4096,8.0,1.0}"
-ARG TF_VERSION="${TF_VERSION:-2.1.0}"
+ARG TF_VERSION="${TF_VERSION:-1.13.2}"
 ARG TF_BUILD_OPTIONS="${TF_BUILD_OPTIONS:--c opt}"
 
 ENV TF_VERSION="$TF_VERSION" \
@@ -59,10 +36,7 @@ ENV TF_VERSION="$TF_VERSION" \
     TF_IGNORE_MAX_BAZEL_VERSION=1 \
     LOCAL_RESOURCES="$LOCAL_RESOURCES"
 
-# FIX: set link to sys/sysctl.h (@hwloc//:hwloc)
-
-RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
-    while true; do \
+RUN while true; do \
       wget -qc "https://github.com/tensorflow/tensorflow/archive/v${TF_VERSION}.tar.gz" \
            -O tensorflow.tar.gz --show-progress --progress=bar:force -t 0 \
            --retry-connrefused --waitretry=2 --read-timeout=30 && \
@@ -70,6 +44,8 @@ RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/sysctl.h && \
     tar xzf tensorflow.tar.gz && \
     rm tensorflow.tar.gz && \
     cd "tensorflow-${TF_VERSION}" && \
+    sed -i -e '/define TF_GENERATE_BACKTRACE/d' tensorflow/core/platform/default/stacktrace.h && \
+    sed -i -e '/define TF_GENERATE_STACKTRACE/d' tensorflow/core/platform/stacktrace_handler.cc && \
     echo '2.0.0-' > .bazelversion && \
     yes '' | ./configure || exit 1 && \
     LD_PRELOAD=/lib bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \

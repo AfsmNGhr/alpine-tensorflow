@@ -19,10 +19,22 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/co
 
 FROM base as build-base
 
+ENV BAZEL_VERSION=0.19.2
+
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-        --virtual build-deps git coreutils cmake build-base linux-headers llvm-dev libexecinfo-dev bazel \
+        --virtual build-deps git coreutils cmake build-base linux-headers llvm-dev libexecinfo-dev \
         bash wget file openblas-dev freetype-dev libjpeg-turbo-dev libpng-dev openjdk8 swig zip patch && \
     echo "startup --server_javabase=/usr/lib/jvm/default-jvm --io_nice_level 7" >> /etc/bazel.bazelrc && \
+    wget -q "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip" \
+         -O bazel.zip && \
+    mkdir "bazel-${BAZEL_VERSION}" && \
+    unzip -qd "bazel-${BAZEL_VERSION}" bazel.zip && \
+    rm bazel.zip && \
+    cd "bazel-${BAZEL_VERSION}" && \
+    sed -i -e 's/-classpath/-J-Xmx4096m -J-Xms128m -classpath/g' \
+        scripts/bootstrap/compile.sh && \
+    bash compile.sh && \
+    cp -p output/bazel /usr/local/bin/ && \
     bazel version
 
 FROM build-base as compile
@@ -33,7 +45,6 @@ ARG TF_BUILD_OPTIONS="${TF_BUILD_OPTIONS:--c opt}"
 
 ENV TF_VERSION="$TF_VERSION" \
     TF_BUILD_OPTIONS="$TF_BUILD_OPTIONS" \
-    TF_IGNORE_MAX_BAZEL_VERSION=1 \
     LOCAL_RESOURCES="$LOCAL_RESOURCES"
 
 RUN while true; do \
@@ -46,9 +57,8 @@ RUN while true; do \
     cd "tensorflow-${TF_VERSION}" && \
     sed -i -e '/define TF_GENERATE_BACKTRACE/d' tensorflow/core/platform/default/stacktrace.h && \
     sed -i -e '/define TF_GENERATE_STACKTRACE/d' tensorflow/core/platform/stacktrace_handler.cc && \
-    echo '2.0.0-' > .bazelversion && \
     yes '' | ./configure || exit 1 && \
-    LD_PRELOAD=/lib bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \
+    bazel build $TF_BUILD_OPTIONS --local_resources $LOCAL_RESOURCES \
         //tensorflow/tools/pip_package:build_pip_package --verbose_failures && \
     ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /root && \
     bazel shutdown && \

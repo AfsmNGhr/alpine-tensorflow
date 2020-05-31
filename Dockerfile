@@ -1,9 +1,9 @@
 ARG ALPINE_PYTHON_IMAGE="${ALPINE_PYTHON_IMAGE:-'python:3.7.7-alpine3.11'}"
 FROM "${ALPINE_PYTHON_IMAGE}" as base
 
-RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
             openblas libpng libjpeg-turbo hdf5 libstdc++ && \
-    apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+    apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
             --virtual build-deps build-base hdf5-dev linux-headers file && \
     pip install --no-cache-dir numpy==1.18.4 h5py && \
     pip install --no-cache-dir --no-deps keras_applications==1.0.8 keras_preprocessing==1.1.2 && \

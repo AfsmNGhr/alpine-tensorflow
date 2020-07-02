@@ -1,4 +1,4 @@
-ARG ALPINE_PYTHON_IMAGE="${ALPINE_PYTHON_IMAGE:-'python:3.7.7-alpine3.11'}"
+ARG ALPINE_PYTHON_IMAGE="${ALPINE_PYTHON_IMAGE:-'python:3.7.8-alpine3.12'}"
 FROM "${ALPINE_PYTHON_IMAGE}" as base
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
